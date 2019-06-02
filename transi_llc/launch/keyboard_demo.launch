@@ -1,0 +1,9 @@
+<launch>
+
+<include file="$(find i2cpwm_board)/launch/i2cpwm_node.launch"/>
+
+
+<node pkg="transi_llc" name="ts_llc" type="_low_level_control.py" output="screen">
+</node>
+
+</launch>
