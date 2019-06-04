@@ -75,8 +75,8 @@ class SonarArray():
             
         #--- Default message
         message = Range()
-        # message.ULTRASOUND      = 1
-        # message.INFRARED        = 0
+        # message.ULTRASOUND      = 0
+        # message.INFRARED        = 1
         message.radiation_type  = 0
         message.min_range       = range_min
         message.max_range       = range_max
