@@ -68,7 +68,7 @@ class SonarArray():
             rospy.loginfo("Sonar %d set"%i)
             
             #--- Publishers
-            topic_name  = "/trcar/sonar/%d"%i
+            topic_name  = "/transi/sonar/%d"%i
             pub = rospy.Publisher(topic_name, Range, queue_size=5)
             self.pub_array.append(pub)
             rospy.loginfo("Publisher %d set with topic %s"%(i, topic_name))
