@@ -4,7 +4,7 @@ import rospy
 from i2cpwm_board.msg import Servo, ServoArray
 from geometry_msgs.msg import Twist
 import time
-
+import motor
 class ServoConvert():
     """
     Class for handling the servos fro the 12c control 12cpem_board
@@ -43,10 +43,13 @@ class TsLowLevelCtrl():
         rospy.loginfo("Setting up the node...")
 
         rospy.init_node("ts_llc")
+        motor.setup()
+        motor.ctrl(1)
 
         #--- Create the actuator dictionary
         self.actuators = {}
         self.actuators['throttle'] = ServoConvert(id=1, centre_value=0)
+        motor.setSpeed(0)
         self.actuators['steering'] = ServoConvert(id=2, direction=1)#-positive left
 
         #--- Create the servo array publisher
@@ -60,6 +63,7 @@ class TsLowLevelCtrl():
 
         #--- Create the subscriber to the /cmd-vel topic
         self.ros_sub_twist = rospy.Subscriber("/cmd_vel", Twist, self.set_actuator_from_cmdvel)
+        #self.motor_sub = rospy.Subscriber("/cmd_vel", Twist, self.move_dc_from_cmdvel)
         rospy.loginfo("> subscriber correctly initialized")
 
         #--- save the last time we got a reference. Stop the vehicle if no commands given
@@ -75,11 +79,13 @@ class TsLowLevelCtrl():
         #-- Save the time
         self._last_time_cmd_rcv = time.time()
 
+
         #-- Convert vel into servo values
         self.actuators['throttle'].get_value_out(message.linear.x)
         self.actuators['steering'].get_value_out(message.angular.z)
         rospy.loginfo("Got a command v = %2.1f  s=%2.1f"%(message.linear.x, message.angular.z))
         self.send_servo_msg()
+        motor.setSpeed(message.linear.x)
 
     def set_actuators_idle(self):
         self.actuators['throttle'].get_value_out(0) #- positive fwd
@@ -88,6 +94,7 @@ class TsLowLevelCtrl():
 
         #-- Puplish the message using a function
         self.send_servo_msg()
+        motor.stop()
 
     def send_servo_msg(self):
         """
